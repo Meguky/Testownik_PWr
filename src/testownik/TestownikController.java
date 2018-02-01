@@ -1,10 +1,13 @@
 package testownik;
 
+
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
@@ -43,37 +46,36 @@ public class TestownikController {
     }
 
     public void chooseFolder(ActionEvent event){
+        //Directory chooser to determine which question database folder will be in use.
         DirectoryChooser directoryChooser = new DirectoryChooser();
         File selectedDirectory = directoryChooser.showDialog(((Node)event.getTarget()).getScene().getWindow());
-        if(selectedDirectory == null){
-            //TODO make not directory selected label
-        }else{
+        if(selectedDirectory != null){
             try{
+                //Getting path to the questions database from selected directory.
                 String path = selectedDirectory.getAbsolutePath();
                 String decodedPath = URLDecoder.decode(path,"UTF-8");
                 File directory = new File(decodedPath);
-
                 System.out.println(directory.getAbsolutePath());
+                //Scanning for sub folders
                 FileFilter directoryScanner = (file) -> file.isDirectory();
                 File[] directoryFileList = directory.listFiles(directoryScanner);
                 try{
+                    //Making and populating array with sub folders names
                     List<String> fileNames = new ArrayList<String>(directoryFileList.length);
+                    if(fileNames.size() < 1){
+                        //Checking if there are any sub folders
+                        new Dialogs("Błąd","Nie znaleziono żadnych folderów z pytaniami.");
+                    }
                     for(File file : directoryFileList){
                         fileNames.add(file.getName());
                     }
+                    //Transitioning to Observable list for combo box
                     ObservableList<String> options = FXCollections.observableArrayList(fileNames);
                     baseChoice.setItems(options);
-                }catch(NullPointerException e){
-                    System.out.println(e.getMessage()); //TODO better exception handling
-                }
-            }catch(UnsupportedEncodingException e){
-                //TODO Make exception handling
-            }
+                }catch(NullPointerException e){}
+            }catch(UnsupportedEncodingException e){}
+        }else{
+            new Dialogs("Błąd","Nie wybrano żadnego folderu z pytaniami.");
         }
-
-
     }
-
-
-
 }

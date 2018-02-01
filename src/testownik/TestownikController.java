@@ -4,8 +4,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.stage.DirectoryChooser;
 
 import javax.swing.*;
 import java.io.File;
@@ -19,7 +21,6 @@ public class TestownikController {
 
     int innerRetryCount, innerInitialCount;
     String innerBaseChoice;
-
     @FXML
     private TextField retryCount;
     @FXML
@@ -29,7 +30,7 @@ public class TestownikController {
 
     @FXML
     public void initialize(){
-        baseChoice.setItems(initComboBox());
+
     }
 
     @FXML
@@ -41,32 +42,38 @@ public class TestownikController {
         JOptionPane.showMessageDialog(null,""+innerRetryCount+innerInitialCount+innerBaseChoice);
     }
 
-    private ObservableList<String> initComboBox(){
-
-        try{
-            String path = this.getClass().getResource(".").getPath();
-            String decodedPath = URLDecoder.decode(path,"UTF-8");
-            File directory = new File(decodedPath + "\\bazy");
-
-            System.out.println(directory.getAbsolutePath());
-            FileFilter directoryScanner = (file) -> file.isDirectory();
-            File[] directoryFileList = directory.listFiles(directoryScanner);
+    public void chooseFolder(ActionEvent event){
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        File selectedDirectory = directoryChooser.showDialog(((Node)event.getTarget()).getScene().getWindow());
+        if(selectedDirectory == null){
+            //TODO make not directory selected label
+        }else{
             try{
-                List<String> fileNames = new ArrayList<String>(directoryFileList.length);
-                for(File file : directoryFileList){
-                    fileNames.add(file.getName());
+                String path = selectedDirectory.getAbsolutePath();
+                String decodedPath = URLDecoder.decode(path,"UTF-8");
+                File directory = new File(decodedPath);
+
+                System.out.println(directory.getAbsolutePath());
+                FileFilter directoryScanner = (file) -> file.isDirectory();
+                File[] directoryFileList = directory.listFiles(directoryScanner);
+                try{
+                    List<String> fileNames = new ArrayList<String>(directoryFileList.length);
+                    for(File file : directoryFileList){
+                        fileNames.add(file.getName());
+                    }
+                    ObservableList<String> options = FXCollections.observableArrayList(fileNames);
+                    baseChoice.setItems(options);
+                }catch(NullPointerException e){
+                    System.out.println(e.getMessage()); //TODO better exception handling
                 }
-                ObservableList<String> options = FXCollections.observableArrayList(fileNames);
-                return options;
-            }catch(NullPointerException e){
-                System.out.println(e.getMessage()); //TODO better exception handling
+            }catch(UnsupportedEncodingException e){
+                //TODO Make exception handling
             }
-        }catch(UnsupportedEncodingException e){
-            //TODO Make exception handling
         }
-        ObservableList<String> nullOptions = FXCollections.observableArrayList();
-        return nullOptions;
+
+
     }
+
 
 
 }

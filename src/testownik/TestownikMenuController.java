@@ -6,21 +6,27 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
 
 import javax.swing.*;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestownikController {
+public class TestownikMenuController {
 
     int innerRetryCount, innerInitialCount;
     String innerBaseChoice;
@@ -30,19 +36,29 @@ public class TestownikController {
     private TextField initialCount;
     @FXML
     private ComboBox<String> baseChoice;
+    @FXML
+    private Button beginTest;
 
     @FXML
     public void initialize(){
+        beginTest.setOnAction(event -> {
+            innerRetryCount = Integer.parseInt(retryCount.getText());
+            innerInitialCount = Integer.parseInt(initialCount.getText());
+            innerBaseChoice = baseChoice.getValue();
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("testownikTest.fxml"));
+                Parent root = loader.load();
+                Stage testStage = new Stage();
+                testStage.setTitle("Test");
+                testStage.setScene(new Scene(root,1280,720));
+                testStage.show();
 
-    }
-
-    @FXML
-    public void beginTest(ActionEvent event){
-        innerRetryCount = Integer.parseInt(retryCount.getText());
-        innerInitialCount = Integer.parseInt(initialCount.getText());
-        innerBaseChoice = baseChoice.getValue();
-
-        JOptionPane.showMessageDialog(null,""+innerRetryCount+innerInitialCount+innerBaseChoice);
+                TestownikTestController controller = loader.getController();
+                controller.initData(innerInitialCount, innerRetryCount, innerBaseChoice);
+            }catch(IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void chooseFolder(ActionEvent event){
@@ -62,7 +78,7 @@ public class TestownikController {
                 try{
                     //Making and populating array with sub folders names
                     List<String> fileNames = new ArrayList<String>(directoryFileList.length);
-                    if(fileNames.size() < 1){
+                    if(directoryFileList.length < 1){
                         //Checking if there are any sub folders
                         new Dialogs("Błąd","Nie znaleziono żadnych folderów z pytaniami.");
                     }

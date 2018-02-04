@@ -1,7 +1,5 @@
 package testownik;
 
-
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -30,6 +28,7 @@ public class TestownikMenuController {
 
     int innerRetryCount, innerInitialCount;
     String innerBaseChoice;
+    File questionsDatabaseDirectory;
     @FXML
     private TextField retryCount;
     @FXML
@@ -39,25 +38,43 @@ public class TestownikMenuController {
     @FXML
     private Button beginTest;
 
+
+
     @FXML
     public void initialize(){
         beginTest.setOnAction(event -> {
-            innerRetryCount = Integer.parseInt(retryCount.getText());
-            innerInitialCount = Integer.parseInt(initialCount.getText());
-            innerBaseChoice = baseChoice.getValue();
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("testownikTest.fxml"));
-                Parent root = loader.load();
-                Stage testStage = new Stage();
-                testStage.setTitle("Test");
-                testStage.setScene(new Scene(root,1280,720));
-                testStage.show();
 
-                TestownikTestController controller = loader.getController();
-                controller.initData(innerInitialCount, innerRetryCount, innerBaseChoice);
-            }catch(IOException e) {
-                e.printStackTrace();
+            try{
+                innerRetryCount = Integer.parseInt(retryCount.getText());
+            }catch(NumberFormatException e){
+                new Dialogs("Błąd","Wpisz liczbę w polu od ilości powtórzeń w razie błędu");
             }
+
+            try{
+                innerInitialCount = Integer.parseInt(initialCount.getText());
+            }catch(NumberFormatException e){
+                new Dialogs("Błąd","Wpisz liczbę w polu od ilości początkowych wystąpień pytania");
+            }
+
+            innerBaseChoice += "\\" + baseChoice.getValue();
+            if(baseChoice.getValue() == null){
+                new Dialogs("Błąd","Nie wybrano żadnej bazy");
+            }else{
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("testownikTest.fxml"));
+                    Parent root = loader.load();
+                    Stage testStage = new Stage();
+                    testStage.setTitle("Test");
+                    testStage.setScene(new Scene(root,1280,720));
+                    testStage.show();
+
+                    TestownikTestController controller = loader.<TestownikTestController>getController();
+                    controller.initData(innerInitialCount, innerRetryCount, innerBaseChoice);
+                }catch(IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
         });
     }
 
@@ -68,9 +85,9 @@ public class TestownikMenuController {
         if(selectedDirectory != null){
             try{
                 //Getting path to the questions database from selected directory.
-                String path = selectedDirectory.getAbsolutePath();
-                String decodedPath = URLDecoder.decode(path,"UTF-8");
-                File directory = new File(decodedPath);
+                String path = URLDecoder.decode(selectedDirectory.getAbsolutePath(),"UTF-8");
+                setInnerBaseChoice(path);
+                File directory = new File(path);
                 System.out.println(directory.getAbsolutePath());
                 //Scanning for sub folders
                 FileFilter directoryScanner = (file) -> file.isDirectory();
@@ -93,5 +110,9 @@ public class TestownikMenuController {
         }else{
             new Dialogs("Błąd","Nie wybrano żadnego folderu z pytaniami.");
         }
+    }
+
+    private void setInnerBaseChoice(String choice){
+        innerBaseChoice = choice;
     }
 }

@@ -37,6 +37,7 @@ public class TestownikTestController {
 
     private ArrayList<TestQuestion> legacyDatabaseLoader(String pPathToDatabase){
         ArrayList<TestQuestion> pTestQuestions = new ArrayList<>();
+
         int i = 0;
         do{
             i++;

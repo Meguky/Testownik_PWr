@@ -11,11 +11,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -28,7 +26,6 @@ public class TestownikMenuController {
 
     int innerRetryCount, innerInitialCount;
     String innerBaseChoice;
-    File questionsDatabaseDirectory;
     @FXML
     private TextField retryCount;
     @FXML
@@ -41,40 +38,40 @@ public class TestownikMenuController {
 
 
     @FXML
-    public void initialize(){
+    public void beginTest(){
         beginTest.setOnAction(event -> {
-
+            //Checking if innerRetryCount is Integer
             try{
                 innerRetryCount = Integer.parseInt(retryCount.getText());
             }catch(NumberFormatException e){
-                new Dialogs("Błąd","Wpisz liczbę w polu od ilości powtórzeń w razie błędu");
+                new Dialog("Błąd","Wpisz liczbę w polu od ilości powtórzeń w razie błędu");
             }
-
+            //Checking if innerInitialCount is Integer
             try{
                 innerInitialCount = Integer.parseInt(initialCount.getText());
             }catch(NumberFormatException e){
-                new Dialogs("Błąd","Wpisz liczbę w polu od ilości początkowych wystąpień pytania");
+                new Dialog("Błąd","Wpisz liczbę w polu od ilości początkowych wystąpień pytania");
             }
-
+            //Cheking if any questions database is selected
             innerBaseChoice += "\\" + baseChoice.getValue();
             if(baseChoice.getValue() == null){
-                new Dialogs("Błąd","Nie wybrano żadnej bazy");
+                new Dialog("Błąd","Nie wybrano żadnej bazy");
             }else{
                 try {
+                    //Initializing new windows with test
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("testownikTest.fxml"));
                     Parent root = loader.load();
                     Stage testStage = new Stage();
                     testStage.setTitle("Test");
                     testStage.setScene(new Scene(root,1280,720));
                     testStage.show();
-
+                    //Passing parameters to test window
                     TestownikTestController controller = loader.<TestownikTestController>getController();
                     controller.initData(innerInitialCount, innerRetryCount, innerBaseChoice);
                 }catch(IOException e) {
                     e.printStackTrace();
                 }
             }
-
         });
     }
 
@@ -86,7 +83,7 @@ public class TestownikMenuController {
             try{
                 //Getting path to the questions database from selected directory.
                 String path = URLDecoder.decode(selectedDirectory.getAbsolutePath(),"UTF-8");
-                setInnerBaseChoice(path);
+                innerBaseChoice = path;
                 File directory = new File(path);
                 System.out.println(directory.getAbsolutePath());
                 //Scanning for sub folders
@@ -97,7 +94,7 @@ public class TestownikMenuController {
                     List<String> fileNames = new ArrayList<String>(directoryFileList.length);
                     if(directoryFileList.length < 1){
                         //Checking if there are any sub folders
-                        new Dialogs("Błąd","Nie znaleziono żadnych folderów z pytaniami.");
+                        new Dialog("Błąd","Nie znaleziono żadnych folderów z pytaniami.");
                     }
                     for(File file : directoryFileList){
                         fileNames.add(file.getName());
@@ -108,11 +105,7 @@ public class TestownikMenuController {
                 }catch(NullPointerException e){}
             }catch(UnsupportedEncodingException e){}
         }else{
-            new Dialogs("Błąd","Nie wybrano żadnego folderu z pytaniami.");
+            new Dialog("Błąd","Nie wybrano żadnego folderu z pytaniami.");
         }
-    }
-
-    private void setInnerBaseChoice(String choice){
-        innerBaseChoice = choice;
     }
 }

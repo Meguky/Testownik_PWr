@@ -2,9 +2,9 @@ package testownik;
 
 import javafx.scene.control.Alert;
 
-public class Dialogs {
+public class Dialog {
 
-    Dialogs(String pTitle, String pMessage){
+    Dialog(String pTitle, String pMessage){
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(pTitle);
         alert.setHeaderText(null);

@@ -1,38 +1,106 @@
 package testownik;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import java.io.*;
-
-import java.util.ArrayList;
+import java.util.*;
 
 
 public class TestownikTestController {
 
-    private int testInitialCount, testRetryCount;
+    private int testInitialCount, testRetryCount, questionsLeft=0, currentQuestion;
     private String testBaseChoice;
     private ArrayList<TestQuestion> testQuestions = new ArrayList<>();
+    private ObservableList<ToggleButton> answerButtons = FXCollections.observableArrayList();
 
     @FXML
     private Button startTestButton;
-
+    @FXML
+    private BorderPane questionPane;
+    @FXML
+    private ListView answersList;
+    @FXML
+    private Button checkAnswer;
+    @FXML
+    private Button nextQuestion;
+    @FXML
+    private Label questionsLearned;
+    @FXML
+    private Label questionsAll;
     void initData(int pInitial, int pRetry, String pBase){
         testInitialCount = pInitial;
         testRetryCount = pRetry;
         testBaseChoice = pBase;
     }
 
-    public void initialize(){ }
+    public void initialize(){
+        nextQuestion.setDisable(true);
+    }
+
+    @FXML
+    public void checkAnswer(){
+        int goodAnswersSelected = 0;
+        int goodAnswers = 0;
+        nextQuestion.setDisable(false);
+        checkAnswer.setDisable(true);
+        System.out.println(testQuestions.get(currentQuestion).getInitialCount());
+        for(ToggleButton b : answerButtons){
+            if(b.isSelected()){
+                if(b.getId() == "true"){
+                    b.setStyle("-fx-background-color: green");
+                    goodAnswers++;
+                    goodAnswersSelected++;
+                }else{
+                    b.setStyle("-fx-background-color: red");
+                }
+            }else{
+                if(b.getId() == "true"){
+                    b.setStyle("-fx-background-color: greenyellow"); //TODO
+                    goodAnswers++;
+                }
+            }
+        }
+        if(goodAnswersSelected == goodAnswers){
+            testQuestions.get(currentQuestion).goodAnswer();
+        }else{
+            testQuestions.get(currentQuestion).badAnswer();
+        }
+        System.out.println(testQuestions.get(currentQuestion).getInitialCount());
+        if(testQuestions.get(currentQuestion).getInitialCount() == 0){
+            testQuestions.remove(testQuestions.get(currentQuestion));
+            questionsLeft++;
+        }
+    }
+
+    @FXML
+    public void nextQuestion(){
+        nextQuestion.setDisable(true);
+        checkAnswer.setDisable(false);
+        questionsLearned.setText(Integer.toString(questionsLeft));
+        Random rn = new Random();
+        currentQuestion = rn.nextInt(testQuestions.size());
+
+        setQuestion(testQuestions.get(currentQuestion).getQuestion());
+        answerButtons = setAnswers(testQuestions.get(currentQuestion).getAnswers());
+        nextQuestion.setDisable(true);
+        checkAnswer.setDisable(false);
+    }
 
     @FXML
     public void startTest(){
         startTestButton.setVisible(false);
         testQuestions = legacyDatabaseLoader(testBaseChoice);
-        for(TestQuestion q : testQuestions){
-            System.out.println(q.toString() + "\n");
-        }
-        System.out.println(testQuestions.size());
+        questionsAll.setText(Integer.toString(testQuestions.size()));
+        questionsLearned.setText("0");
+        Random rn = new Random();
+        currentQuestion = rn.nextInt(testQuestions.size());
+        setQuestion(testQuestions.get(currentQuestion).getQuestion());
+        answerButtons = setAnswers(testQuestions.get(currentQuestion).getAnswers());
+
     }
 
     private ArrayList<TestQuestion> legacyDatabaseLoader(String pPathToDatabase){
@@ -42,17 +110,17 @@ public class TestownikTestController {
         do{
             i++;
             if(i < 10) {
-                try (BufferedReader reader = new BufferedReader(new FileReader(new File(pPathToDatabase + "\\" + "00" + i + ".txt")))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(pPathToDatabase + "\\" + "00" + i + ".txt"), "Windows-1250"))) {
                     pTestQuestions.add(addQuestion(reader));
                 } catch (IOException e) { break; }
             }
             if(i >= 10 && i < 100){
-                try (BufferedReader reader = new BufferedReader(new FileReader(new File(pPathToDatabase + "\\" + "0" + i + ".txt")))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(pPathToDatabase + "\\" + "0" + i + ".txt"), "Windows-1250"))) {
                     pTestQuestions.add(addQuestion(reader));
                 } catch (IOException e) { break; }
             }
             if(i >= 100){
-                try (BufferedReader reader = new BufferedReader(new FileReader(new File(pPathToDatabase + "\\" + i + ".txt")))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(pPathToDatabase + "\\" + i + ".txt"), "Windows-1250"))) {
                     pTestQuestions.add(addQuestion(reader));
                 } catch (IOException e) { break; }
             }
@@ -75,7 +143,39 @@ public class TestownikTestController {
             }
             i++;
         }
-        return new TestQuestion(readQuestion, readAnswers);
+        return new TestQuestion(readQuestion, readAnswers, testInitialCount, testRetryCount);
+    }
+
+    private void setQuestion(String question){
+        if(!question.startsWith("[img]")){
+            Label questionLabel = new Label();
+            questionLabel.setText(question);
+            questionLabel.setPrefWidth(1200);
+            questionLabel.setPrefHeight(190);
+            questionLabel.setAlignment(Pos.CENTER);
+            questionLabel.setStyle("-fx-background-color: darkgray; -fx-alignment: center;");
+            questionPane.setCenter(questionLabel);
+        }else{
+
+        }
+    }
+
+    private ObservableList<ToggleButton> setAnswers(ArrayList<TestAnswer> pTestAnswers){
+        ObservableList<ToggleButton> answersButtons = FXCollections.observableArrayList();
+        for(TestAnswer q : pTestAnswers) {
+            if (!q.getAnswerText().startsWith("[img]")) {
+                ToggleButton btn = new ToggleButton();
+                btn.setAlignment(Pos.CENTER);
+                btn.setPrefWidth(720);
+                btn.setText(q.getAnswerText());
+                btn.setId(Boolean.toString(q.isCorrect()));
+                answersButtons.add(btn);
+            } else {
+
+            }
+        }
+        answersList.setItems(answersButtons);
+        return answersButtons;
     }
 }
 
@@ -83,10 +183,12 @@ class TestQuestion{
 
     private String question;
     private ArrayList<TestAnswer> answers;
-
-    TestQuestion(String pQ, ArrayList<TestAnswer> pA){
+    private int retryCount, retryCountWhenErrorOcurred;
+    TestQuestion(String pQ, ArrayList<TestAnswer> pA, int pIC, int pRC){
         question = pQ;
         answers = pA;
+        retryCount = pIC;
+        retryCountWhenErrorOcurred = pRC;
     }
 
     @Override
@@ -106,6 +208,22 @@ class TestQuestion{
 
     ArrayList<TestAnswer> getAnswers(){
         return answers;
+    }
+
+    int getInitialCount(){
+        return retryCount;
+    }
+
+    int getRetryCount(){
+        return retryCountWhenErrorOcurred;
+    }
+
+    void badAnswer(){
+        retryCount += retryCountWhenErrorOcurred;
+    }
+
+    void goodAnswer(){
+        retryCount--;
     }
 }
 

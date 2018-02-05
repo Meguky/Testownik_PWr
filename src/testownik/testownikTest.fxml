@@ -1,49 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <VBox fx:id="testWindow" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="testownik.TestownikTestController">
    <children>
-      <MenuBar>
-        <menus>
-          <Menu mnemonicParsing="false" text="File">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Close" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Delete" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Help">
-            <items>
-              <MenuItem mnemonicParsing="false" text="About" />
-            </items>
-          </Menu>
-        </menus>
-      </MenuBar>
-      <AnchorPane prefHeight="696.0" prefWidth="1280.0">
+      <AnchorPane prefHeight="720.0" prefWidth="1280.0">
          <children>
-            <Pane fx:id="questionPane" layoutX="14.0" layoutY="14.0" prefHeight="200.0" prefWidth="1253.0" />
-            <Pane fx:id="answersPane" layoutX="276.0" layoutY="230.0" prefHeight="436.0" prefWidth="729.0">
+            <BorderPane fx:id="questionPane" layoutX="15.0" layoutY="14.0" prefHeight="200.0" prefWidth="1250.0" />
+            <Button fx:id="nextQuestion" layoutX="1163.0" layoutY="643.0" mnemonicParsing="false" onAction="#nextQuestion" prefHeight="46.0" prefWidth="99.0" text="Dalej" />
+            <Button fx:id="checkAnswer" layoutX="1039.0" layoutY="643.0" mnemonicParsing="false" onAction="#checkAnswer" prefHeight="46.0" prefWidth="99.0" text="Sprawdź" />
+            <ListView fx:id="answersList" layoutX="275.0" layoutY="219.0" prefHeight="470.0" prefWidth="730.0" />
+            <Button fx:id="startTestButton" layoutX="469.0" layoutY="285.0" mnemonicParsing="false" onAction="#startTest" prefHeight="151.0" prefWidth="342.0" text="START">
+               <font>
+                  <Font size="64.0" />
+               </font>
+            </Button>
+            <Pane layoutX="1039.0" layoutY="219.0" prefHeight="401.0" prefWidth="223.0" style="-fx-background-color: gray;">
                <children>
-                  <Button fx:id="startTestButton" layoutX="194.0" layoutY="143.0" mnemonicParsing="false" onAction="#startTest" prefHeight="151.0" prefWidth="342.0" text="START">
+                  <Label layoutX="11.0" prefHeight="35.0" prefWidth="201.0" style="-fx-alignment: center;" text="INFO">
                      <font>
-                        <Font size="64.0" />
+                        <Font name="System Bold" size="24.0" />
                      </font>
-                  </Button>
+                  </Label>
+                  <Label layoutX="14.0" layoutY="35.0" prefHeight="17.0" prefWidth="118.0" text="Wyuczone pytania" />
+                  <Label fx:id="questionsLearned" layoutX="118.0" layoutY="35.0" prefHeight="17.0" prefWidth="29.0" style="-fx-alignment: baseline-right;" text="0" textAlignment="RIGHT" />
+                  <Label layoutX="146.0" layoutY="35.0" text="/" />
+                  <Label fx:id="questionsAll" layoutX="151.0" layoutY="35.0" prefHeight="17.0" prefWidth="29.0" text="0" />
                </children>
             </Pane>
-            <Button fx:id="nextQuestion" layoutX="1150.0" layoutY="620.0" mnemonicParsing="false" prefHeight="46.0" prefWidth="99.0" text="Dalej" />
-            <Button fx:id="checkAnswer" layoutX="1035.0" layoutY="620.0" mnemonicParsing="false" prefHeight="46.0" prefWidth="99.0" text="Sprawdź" />
          </children>
       </AnchorPane>
    </children>

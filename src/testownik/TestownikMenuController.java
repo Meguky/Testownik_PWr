@@ -1,5 +1,6 @@
 package testownik;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -8,10 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -32,63 +30,92 @@ public class TestownikMenuController {
     private ComboBox<String> baseChoice;
     @FXML
     private Button beginTest;
+    @FXML
+    private MenuBar menuBar;
+    @FXML
+    private Menu menu;
+    @FXML
+    private MenuItem settings;
+    @FXML
+    private MenuItem about;
+    @FXML
+    private MenuItem exit;
 
+    @FXML
+    public void settingsHandle(){
+        //TODO Settings; theme chooser, default questions database folder etc.
+    }
 
+    @FXML
+    public void aboutHandle(){
+        String aboutText = "Program stworzony do pomocy przy nauce pytań na testy PWr,\n" +
+                "Kompatybilny ze starymi bazami pytań (pytania numerowane od 000 do 999)\n" +
+                "Stworzony przez: Krzysztof Razik";
+        new Dialog("O Programie", aboutText,Alert.AlertType.INFORMATION);
+    }
+
+    @FXML
+    public void exitHandle(){
+        Platform.exit();
+    }
+
+    @FXML
+    public void initialize(){
+        beginTest.setFocusTraversable(true);
+    }
 
     @FXML
     public void beginTest(){
-        beginTest.setOnAction(event -> {
-            boolean errorFlag = false;
-            //Checking if innerRetryCount is Integer (0-INT_MAX)
-            try{
-                innerRetryCount = Integer.parseInt(retryCount.getText());
-                if(innerRetryCount < 0){
-                    new Dialog("Błąd", "Ilość początkowych wystąpnień pytania -> Liczba musi być równa lub większa niż zero.", Alert.AlertType.ERROR);
-                    errorFlag = true;
-                }
-            }catch(NumberFormatException e){
-                new Dialog("Błąd","Ilość początkowych wystąpnień pytania -> Wpisana wartość nie jest liczbą, lub jest za duża.", Alert.AlertType.ERROR);
+        boolean errorFlag = false;
+        //Checking if innerRetryCount is Integer (0-INT_MAX)
+        try{
+            innerRetryCount = Integer.parseInt(retryCount.getText());
+            if(innerRetryCount < 0){
+                new Dialog("Błąd", "Ilość początkowych wystąpnień pytania -> Liczba musi być równa lub większa niż zero.", Alert.AlertType.ERROR);
                 errorFlag = true;
             }
-            //Checking if innerInitialCount is Integer (1-INT_MAX)
-            try{
-                innerInitialCount = Integer.parseInt(initialCount.getText());
-                if(innerInitialCount <= 0){
-                    new Dialog("Błąd", "Ilość powtórzeń w razie błędu -> Liczba musi być większa niż zero.", Alert.AlertType.ERROR);
-                    errorFlag = true;
-                }
-            }catch(NumberFormatException e){
-                new Dialog("Błąd","Ilość powtórzeń w razie błędu -> Wpisana wartość nie jest liczbą, lub jest za duża.", Alert.AlertType.ERROR);
+        }catch(NumberFormatException e){
+            new Dialog("Błąd","Ilość początkowych wystąpnień pytania -> Wpisana wartość nie jest liczbą, lub jest za duża.", Alert.AlertType.ERROR);
+            errorFlag = true;
+        }
+        //Checking if innerInitialCount is Integer (1-INT_MAX)
+        try{
+            innerInitialCount = Integer.parseInt(initialCount.getText());
+            if(innerInitialCount <= 0){
+                new Dialog("Błąd", "Ilość powtórzeń w razie błędu -> Liczba musi być większa niż zero.", Alert.AlertType.ERROR);
                 errorFlag = true;
             }
-            //Cheking if any questions database is selected
-            innerBaseChoice += "\\" + baseChoice.getValue();
-            if(baseChoice.getValue() == null){
-                new Dialog("Błąd","Nie wybrano żadnej bazy pytań", Alert.AlertType.ERROR);
-                errorFlag = true;
-            }
-            if(!errorFlag) {
-                try(BufferedReader database = new BufferedReader(new FileReader(new File(innerBaseChoice + "\\" + "baza.txt")))){
-                    try {
-                        //Initializing new windows with test
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("testownikTest.fxml"));
-                        Parent root = loader.load();
-                        Stage testStage = new Stage();
-                        testStage.setTitle("Test");
-                        testStage.setScene(new Scene(root,1280,720));
-                        testStage.show();
-                        //Passing parameters to test window
-                        TestownikTestController controller = loader.<TestownikTestController>getController();
-                        controller.initData(innerInitialCount, innerRetryCount, innerBaseChoice);
-                    }catch(IOException e) {
-                        e.printStackTrace();
-                    }
-                }catch(IOException e){
+        }catch(NumberFormatException e){
+            new Dialog("Błąd","Ilość powtórzeń w razie błędu -> Wpisana wartość nie jest liczbą, lub jest za duża.", Alert.AlertType.ERROR);
+            errorFlag = true;
+        }
+        //Cheking if any questions database is selected
+        innerBaseChoice += "\\" + baseChoice.getValue();
+        if(baseChoice.getValue() == null){
+            new Dialog("Błąd","Nie wybrano żadnej bazy pytań", Alert.AlertType.ERROR);
+            errorFlag = true;
+        }
+        if(!errorFlag) {
+            try(BufferedReader database = new BufferedReader(new FileReader(new File(innerBaseChoice + "\\" + "baza.txt")))){
+                try {
+                    //Initializing new windows with test
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("testownikTest.fxml"));
+                    Parent root = loader.load();
+                    Stage testStage = new Stage();
+                    testStage.setTitle("Test");
+                    testStage.setScene(new Scene(root,1280,720));
+                    testStage.show();
+                    //Passing parameters to test window
+                    TestownikTestController controller = loader.<TestownikTestController>getController();
+                    controller.initData(innerInitialCount, innerRetryCount, innerBaseChoice);
+                }catch(IOException e) {
                     e.printStackTrace();
                 }
+            }catch(IOException e){
+                e.printStackTrace();
             }
-            errorFlag = false;
-        });
+        }
+        errorFlag = false;
     }
 
     public void chooseFolder(ActionEvent event){

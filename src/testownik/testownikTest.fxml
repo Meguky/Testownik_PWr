@@ -9,20 +9,20 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="testWindow" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" style="-fx-alignment: center;" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="testownik.TestownikTestController">
+<VBox fx:id="testWindow" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" style="-fx-alignment: center;" stylesheets="@testownik_style_light.css" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="testownik.TestownikTestController">
    <children>
-      <AnchorPane prefHeight="720.0" prefWidth="1280.0">
+      <AnchorPane prefHeight="720.0" prefWidth="1280.0" stylesheets="@testownik_style_light.css">
          <children>
-            <BorderPane fx:id="questionPane" layoutX="15.0" layoutY="14.0" prefHeight="200.0" prefWidth="1250.0" styleClass="questionPane" stylesheets="@testownik_style.css" />
+            <BorderPane fx:id="questionPane" layoutX="15.0" layoutY="14.0" prefHeight="200.0" prefWidth="1250.0" styleClass="questionPane" stylesheets="@testownik_style_light.css" />
             <Button fx:id="nextQuestionButton" layoutX="1163.0" layoutY="657.0" mnemonicParsing="false" onAction="#nextQuestion" prefHeight="46.0" prefWidth="99.0" text="Dalej" />
             <Button fx:id="checkAnswerButton" layoutX="1039.0" layoutY="657.0" mnemonicParsing="false" onAction="#checkAnswer" prefHeight="46.0" prefWidth="99.0" text="Sprawdź" />
-            <ListView fx:id="answersList" layoutX="275.0" layoutY="225.0" prefHeight="478.0" prefWidth="730.0" styleClass="answersList" stylesheets="@testownik_style.css" />
+            <ListView fx:id="answersList" layoutX="275.0" layoutY="225.0" prefHeight="478.0" prefWidth="730.0" styleClass="answersList" stylesheets="@testownik_style_light.css" />
             <Button fx:id="startTestButton" layoutX="469.0" layoutY="285.0" mnemonicParsing="false" onAction="#startTest" prefHeight="151.0" prefWidth="342.0" text="START">
                <font>
                   <Font size="64.0" />
                </font>
             </Button>
-            <Pane layoutX="1040.0" layoutY="225.0" prefHeight="401.0" prefWidth="226.0" styleClass="infoPane" stylesheets="@testownik_style.css">
+            <Pane layoutX="1040.0" layoutY="225.0" prefHeight="401.0" prefWidth="226.0" styleClass="infoPane" stylesheets="@testownik_style_light.css">
                <children>
                   <Label layoutX="11.0" prefHeight="35.0" prefWidth="201.0" style="-fx-alignment: center;" text="INFO">
                      <font>

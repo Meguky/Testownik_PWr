@@ -10,4 +10,5 @@
 
 .answersList{
     -fx-grid-lines-visible: false;
+    -fx-background-color: white;
 }

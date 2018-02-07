@@ -5,49 +5,70 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+
 import java.io.*;
 import java.util.*;
 
 
 public class TestownikTestController {
 
-    private int testInitialCount, testRetryCount, questionsLeft=0, currentQuestion;
-    private String testBaseChoice;
+    private int testInitialOccurrenceCount, testQuestionRetryCount, questionsLearned, currentQuestion;
+    private String testBasePath;
     private ArrayList<TestQuestion> testQuestions = new ArrayList<>();
     private ObservableList<ToggleButton> answerButtons = FXCollections.observableArrayList();
 
-    @FXML
-    private Button startTestButton;
     @FXML
     private BorderPane questionPane;
     @FXML
     private ListView answersList;
     @FXML
-    private Button checkAnswer;
+    private Button startTestButton;
     @FXML
-    private Button nextQuestion;
+    private Button checkAnswerButton;
     @FXML
-    private Label questionsLearned;
+    private Button nextQuestionButton;
     @FXML
-    private Label questionsAll;
+    private Label questionsLearnedLabel;
+    @FXML
+    private Label questionsAllLabel;
+
     void initData(int pInitial, int pRetry, String pBase){
-        testInitialCount = pInitial;
-        testRetryCount = pRetry;
-        testBaseChoice = pBase;
+        testInitialOccurrenceCount = pInitial;
+        testQuestionRetryCount = pRetry;
+        testBasePath = pBase;
     }
 
     public void initialize(){
-        nextQuestion.setDisable(true);
+        nextQuestionButton.setDisable(true);
+    }
+
+    @FXML
+    public void startTest(){
+        startTestButton.setVisible(false);
+        //Loading questions; "legacy" loading refers to old to system which was used by older "Testownik"
+        testQuestions = legacyDatabaseLoader(testBasePath);
+        //Initializing labels
+        System.out.println(testQuestions.size());
+        questionsAllLabel.setText(Integer.toString(testQuestions.size()));
+        questionsLearnedLabel.setText("0");
+        //Picking first random question
+        Random rn = new Random();
+        currentQuestion = rn.nextInt(testQuestions.size());
+        //Setting question and answers
+        setQuestion(testQuestions.get(currentQuestion).getQuestion());
+        answerButtons = setAnswers(testQuestions.get(currentQuestion).getAnswers());
     }
 
     @FXML
     public void checkAnswer(){
         int goodAnswersSelected = 0;
         int goodAnswers = 0;
-        nextQuestion.setDisable(false);
-        checkAnswer.setDisable(true);
-        System.out.println(testQuestions.get(currentQuestion).getInitialCount());
+        nextQuestionButton.setDisable(false);
+        checkAnswerButton.setDisable(true);
+        //Marking good and bad answers and also checking if user chose good one
         for(ToggleButton b : answerButtons){
             if(b.isSelected()){
                 if(b.getId() == "true"){
@@ -64,91 +85,80 @@ public class TestownikTestController {
                 }
             }
         }
+        //If user answered correctly question occurrence is lowered, otherwise retryCount is added to occurrence count
         if(goodAnswersSelected == goodAnswers){
             testQuestions.get(currentQuestion).goodAnswer();
         }else{
             testQuestions.get(currentQuestion).badAnswer();
         }
-        System.out.println(testQuestions.get(currentQuestion).getInitialCount());
-        if(testQuestions.get(currentQuestion).getInitialCount() == 0){
+        //If question is learned, or occurrence count is 0 then remove question from the array.
+        if(testQuestions.get(currentQuestion).getOccurrenceCount() == 0){
             testQuestions.remove(testQuestions.get(currentQuestion));
-            questionsLeft++;
+            questionsLearned++;
         }
     }
 
     @FXML
     public void nextQuestion(){
-        nextQuestion.setDisable(true);
-        checkAnswer.setDisable(false);
-        questionsLearned.setText(Integer.toString(questionsLeft));
+        nextQuestionButton.setDisable(true);
+        checkAnswerButton.setDisable(false);
+        //Updating labels
+        questionsLearnedLabel.setText(Integer.toString(questionsLearned));
+        //Picking next random question from remaining ones
         Random rn = new Random();
         currentQuestion = rn.nextInt(testQuestions.size());
-
+        //Setting question and answers
         setQuestion(testQuestions.get(currentQuestion).getQuestion());
         answerButtons = setAnswers(testQuestions.get(currentQuestion).getAnswers());
-        nextQuestion.setDisable(true);
-        checkAnswer.setDisable(false);
-    }
-
-    @FXML
-    public void startTest(){
-        startTestButton.setVisible(false);
-        testQuestions = legacyDatabaseLoader(testBaseChoice);
-        questionsAll.setText(Integer.toString(testQuestions.size()));
-        questionsLearned.setText("0");
-        Random rn = new Random();
-        currentQuestion = rn.nextInt(testQuestions.size());
-        setQuestion(testQuestions.get(currentQuestion).getQuestion());
-        answerButtons = setAnswers(testQuestions.get(currentQuestion).getAnswers());
-
+        nextQuestionButton.setDisable(true);
+        checkAnswerButton.setDisable(false);
     }
 
     private ArrayList<TestQuestion> legacyDatabaseLoader(String pPathToDatabase){
         ArrayList<TestQuestion> pTestQuestions = new ArrayList<>();
-
         int i = 0;
         do{
             i++;
             if(i < 10) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(pPathToDatabase + "\\" + "00" + i + ".txt"), "Windows-1250"))) {
-                    pTestQuestions.add(addQuestion(reader));
+                    pTestQuestions.add(addTestQuestion(reader));
                 } catch (IOException e) { break; }
             }
             if(i >= 10 && i < 100){
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(pPathToDatabase + "\\" + "0" + i + ".txt"), "Windows-1250"))) {
-                    pTestQuestions.add(addQuestion(reader));
+                    pTestQuestions.add(addTestQuestion(reader));
                 } catch (IOException e) { break; }
             }
             if(i >= 100){
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(pPathToDatabase + "\\" + i + ".txt"), "Windows-1250"))) {
-                    pTestQuestions.add(addQuestion(reader));
+                    pTestQuestions.add(addTestQuestion(reader));
                 } catch (IOException e) { break; }
             }
         }while(true);
+
         return pTestQuestions;
     }
 
-    private TestQuestion addQuestion(BufferedReader reader) throws IOException{
-
-        String readQuestion, goodAnswerString, line;
+    private TestQuestion addTestQuestion(BufferedReader reader) throws IOException{
+        String readQuestion, goodAnswerString, currentLine;
         ArrayList<TestAnswer> readAnswers = new ArrayList<>();
         goodAnswerString = reader.readLine();
         readQuestion = reader.readLine();
-        int i = 1;
-        while((line = reader.readLine()) != null){
-            if(goodAnswerString.charAt(i) == '1'){
-                readAnswers.add(new TestAnswer(line, true));
+        int goodQuestionCheck = 1;
+        while((currentLine = reader.readLine()) != null){
+            if(goodAnswerString.charAt(goodQuestionCheck) == '1'){
+                readAnswers.add(new TestAnswer(currentLine, true));
             }else{
-                readAnswers.add(new TestAnswer(line, false));
+                readAnswers.add(new TestAnswer(currentLine, false));
             }
-            i++;
+            goodQuestionCheck++;
         }
-        return new TestQuestion(readQuestion, readAnswers, testInitialCount, testRetryCount);
+        return new TestQuestion(readQuestion, readAnswers, testInitialOccurrenceCount, testQuestionRetryCount);
     }
 
     private void setQuestion(String question){
+        Label questionLabel = new Label();
         if(!question.startsWith("[img]")){
-            Label questionLabel = new Label();
             questionLabel.setText(question);
             questionLabel.setPrefWidth(1200);
             questionLabel.setPrefHeight(190);
@@ -156,12 +166,21 @@ public class TestownikTestController {
             questionLabel.setStyle("-fx-background-color: darkgray; -fx-alignment: center;");
             questionPane.setCenter(questionLabel);
         }else{
-
+            String imageQuestion;
+            imageQuestion = question.substring(5,12);
+            try{
+                System.out.println(testBasePath + "\\" + imageQuestion);
+                Image image = new Image(new FileInputStream(testBasePath + "\\" + imageQuestion));
+                questionPane.setCenter(new ImageView(image));
+            }catch(FileNotFoundException e){
+                e.getStackTrace();
+            }
         }
     }
 
     private ObservableList<ToggleButton> setAnswers(ArrayList<TestAnswer> pTestAnswers){
         ObservableList<ToggleButton> answersButtons = FXCollections.observableArrayList();
+
         for(TestAnswer q : pTestAnswers) {
             if (!q.getAnswerText().startsWith("[img]")) {
                 ToggleButton btn = new ToggleButton();
@@ -171,7 +190,20 @@ public class TestownikTestController {
                 btn.setId(Boolean.toString(q.isCorrect()));
                 answersButtons.add(btn);
             } else {
-
+                String imageAnswer;
+                imageAnswer = q.getAnswerText().substring(5,13);
+                try{
+                    System.out.println(testBasePath + "\\" + imageAnswer);
+                    Image image = new Image(new FileInputStream(testBasePath + "\\" + imageAnswer));
+                    ToggleButton btn = new ToggleButton();
+                    btn.setAlignment(Pos.CENTER);
+                    btn.setPrefWidth(720);
+                    btn.setGraphic(new ImageView(image));
+                    btn.setId(Boolean.toString(q.isCorrect()));
+                    answersButtons.add(btn);
+                }catch(FileNotFoundException e){
+                    e.getStackTrace();
+                }
             }
         }
         answersList.setItems(answersButtons);
@@ -180,15 +212,14 @@ public class TestownikTestController {
 }
 
 class TestQuestion{
-
     private String question;
     private ArrayList<TestAnswer> answers;
-    private int retryCount, retryCountWhenErrorOcurred;
+    private int occurrenceCount, retryCountWhenErrorOccurred;
     TestQuestion(String pQ, ArrayList<TestAnswer> pA, int pIC, int pRC){
         question = pQ;
         answers = pA;
-        retryCount = pIC;
-        retryCountWhenErrorOcurred = pRC;
+        occurrenceCount = pIC;
+        retryCountWhenErrorOccurred = pRC;
     }
 
     @Override
@@ -210,20 +241,20 @@ class TestQuestion{
         return answers;
     }
 
-    int getInitialCount(){
-        return retryCount;
+    int getOccurrenceCount(){
+        return occurrenceCount;
     }
 
     int getRetryCount(){
-        return retryCountWhenErrorOcurred;
+        return retryCountWhenErrorOccurred;
     }
 
     void badAnswer(){
-        retryCount += retryCountWhenErrorOcurred;
+        occurrenceCount += retryCountWhenErrorOccurred;
     }
 
     void goodAnswer(){
-        retryCount--;
+        occurrenceCount--;
     }
 }
 

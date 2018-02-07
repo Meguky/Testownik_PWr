@@ -21,8 +21,8 @@ import java.util.List;
 
 public class TestownikMenuController {
 
-    int innerRetryCount, innerInitialCount;
-    String innerBaseChoice;
+    private int innerRetryCount, innerInitialCount;
+    private String innerBaseChoice;
     @FXML
     private TextField retryCount;
     @FXML

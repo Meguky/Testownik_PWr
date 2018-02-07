@@ -115,6 +115,7 @@ public class TestownikTestController {
         //Setting question and answers
         setQuestion(testQuestions.get(currentQuestion).getQuestion());
         answerButtons = setAnswers(testQuestions.get(currentQuestion).getAnswers());
+
         answersList.setItems(answerButtons);
         nextQuestionButton.setDisable(true);
         checkAnswerButton.setDisable(false);
@@ -125,19 +126,23 @@ public class TestownikTestController {
         ArrayList<TestQuestion> pTestQuestions = new ArrayList<>();
         int i = 0;
         do{
+
             i++;
             if(i < 10) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(pPathToDatabase + "\\" + "00" + i + ".txt"), "Windows-1250"))) {
+                    System.out.println(pPathToDatabase + "\\" + "00" + i + ".txt");
                     pTestQuestions.add(addTestQuestion(reader));
                 } catch (IOException e) { break; }
             }
             if(i >= 10 && i < 100){
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(pPathToDatabase + "\\" + "0" + i + ".txt"), "Windows-1250"))) {
+                    System.out.println(pPathToDatabase + "\\" + "00" + i + ".txt");
                     pTestQuestions.add(addTestQuestion(reader));
                 } catch (IOException e) { break; }
             }
             if(i >= 100){
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(pPathToDatabase + "\\" + i + ".txt"), "Windows-1250"))) {
+                    System.out.println(pPathToDatabase + "\\" + "00" + i + ".txt");
                     pTestQuestions.add(addTestQuestion(reader));
                 } catch (IOException e) { break; }
             }
@@ -152,17 +157,21 @@ public class TestownikTestController {
         ArrayList<TestAnswer> readAnswers = new ArrayList<>();
         //Good answer string (in format X0100011 where 1 is good answer and 0 is bad answer) which is remembered and used to mark good answers later on.
         goodAnswerString = reader.readLine();
+        System.out.println(goodAnswerString);
         //Question text.
         readQuestion = reader.readLine();
+        System.out.println(readQuestion);
         //Loop for adding answers, it ends at the end of the file.
         int goodQuestionCheck = 1;
         while((currentLine = reader.readLine()) != null){
+            if(currentLine.trim().isEmpty()){break;}
             if(goodAnswerString.charAt(goodQuestionCheck) == '1'){
                 readAnswers.add(new TestAnswer(currentLine, true));
             }else{
                 readAnswers.add(new TestAnswer(currentLine, false));
             }
             goodQuestionCheck++;
+            System.out.println(currentLine);
         }
         return new TestQuestion(readQuestion, readAnswers, testInitialOccurrenceCount, testQuestionRetryCount);
     }

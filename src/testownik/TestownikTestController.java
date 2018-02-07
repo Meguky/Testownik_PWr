@@ -8,7 +8,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-
 import java.io.*;
 import java.util.*;
 
@@ -43,6 +42,7 @@ public class TestownikTestController {
 
     public void initialize(){
         nextQuestionButton.setDisable(true);
+        answersList.setFocusTraversable(false);
     }
 
     @FXML
@@ -60,6 +60,7 @@ public class TestownikTestController {
         //Setting question and answers
         setQuestion(testQuestions.get(currentQuestion).getQuestion());
         answerButtons = setAnswers(testQuestions.get(currentQuestion).getAnswers());
+        answersList.setItems(answerButtons);
     }
 
     @FXML
@@ -71,16 +72,16 @@ public class TestownikTestController {
         //Marking good and bad answers and also checking if user chose good one
         for(ToggleButton b : answerButtons){
             if(b.isSelected()){
-                if(b.getId() == "true"){
-                    b.setStyle("-fx-background-color: green");
+                if(b.getId().equals("true")){
+                    b.setStyle("-fx-background-color: green; -fx-alignment: center; -fx-font-size: 18px");
                     goodAnswers++;
                     goodAnswersSelected++;
                 }else{
-                    b.setStyle("-fx-background-color: red");
+                    b.setStyle("-fx-background-color: red; -fx-alignment: center; -fx-font-size: 18px");
                 }
             }else{
-                if(b.getId() == "true"){
-                    b.setStyle("-fx-background-color: greenyellow"); //TODO
+                if(b.getId().equals("true")){
+                    b.setStyle("-fx-background-color: greenyellow; -fx-alignment: center; -fx-font-size: 18px"); //TODO
                     goodAnswers++;
                 }
             }
@@ -100,6 +101,10 @@ public class TestownikTestController {
 
     @FXML
     public void nextQuestion(){
+        if(testQuestions.size() == 0){
+            new Dialog("Koniec", "Udało się! Wszystkie pytania przerobione!", Alert.AlertType.INFORMATION);
+            System.exit(0); //TODO Better exit window
+        }
         nextQuestionButton.setDisable(true);
         checkAnswerButton.setDisable(false);
         //Updating labels
@@ -110,11 +115,13 @@ public class TestownikTestController {
         //Setting question and answers
         setQuestion(testQuestions.get(currentQuestion).getQuestion());
         answerButtons = setAnswers(testQuestions.get(currentQuestion).getAnswers());
+        answersList.setItems(answerButtons);
         nextQuestionButton.setDisable(true);
         checkAnswerButton.setDisable(false);
     }
 
     private ArrayList<TestQuestion> legacyDatabaseLoader(String pPathToDatabase){
+        //Function loads questions from files and uses addTestQuestion function to parse text from files. Then it adds questions to array.
         ArrayList<TestQuestion> pTestQuestions = new ArrayList<>();
         int i = 0;
         do{
@@ -140,10 +147,14 @@ public class TestownikTestController {
     }
 
     private TestQuestion addTestQuestion(BufferedReader reader) throws IOException{
+        //Function parse questions from text files
         String readQuestion, goodAnswerString, currentLine;
         ArrayList<TestAnswer> readAnswers = new ArrayList<>();
+        //Good answer string (in format X0100011 where 1 is good answer and 0 is bad answer) which is remembered and used to mark good answers later on.
         goodAnswerString = reader.readLine();
+        //Question text.
         readQuestion = reader.readLine();
+        //Loop for adding answers, it ends at the end of the file.
         int goodQuestionCheck = 1;
         while((currentLine = reader.readLine()) != null){
             if(goodAnswerString.charAt(goodQuestionCheck) == '1'){
@@ -157,15 +168,19 @@ public class TestownikTestController {
     }
 
     private void setQuestion(String question){
+        //Function setups questions when new test question is chosen.
         Label questionLabel = new Label();
         if(!question.startsWith("[img]")){
-            questionLabel.setText(question);
+            //Normal text questions.
             questionLabel.setPrefWidth(1200);
             questionLabel.setPrefHeight(190);
             questionLabel.setAlignment(Pos.CENTER);
-            questionLabel.setStyle("-fx-background-color: darkgray; -fx-alignment: center;");
+            questionLabel.setStyle("-fx-alignment: center; -fx-font-size: 20px");
+            questionLabel.setWrapText(true);
+            questionLabel.setText(question);
             questionPane.setCenter(questionLabel);
         }else{
+            //Image questions.
             String imageQuestion;
             imageQuestion = question.substring(5,12);
             try{
@@ -179,17 +194,21 @@ public class TestownikTestController {
     }
 
     private ObservableList<ToggleButton> setAnswers(ArrayList<TestAnswer> pTestAnswers){
+        //Function setups answers when new test question is chosen.
         ObservableList<ToggleButton> answersButtons = FXCollections.observableArrayList();
-
         for(TestAnswer q : pTestAnswers) {
             if (!q.getAnswerText().startsWith("[img]")) {
+                //Normal text answers.
                 ToggleButton btn = new ToggleButton();
+                btn.setWrapText(true);
                 btn.setAlignment(Pos.CENTER);
-                btn.setPrefWidth(720);
+                btn.setPrefWidth(715);
+                btn.setStyle("-fx-alignment: center; -fx-font-size: 18px");
                 btn.setText(q.getAnswerText());
                 btn.setId(Boolean.toString(q.isCorrect()));
                 answersButtons.add(btn);
-            } else {
+            }else {
+                //Image answers.
                 String imageAnswer;
                 imageAnswer = q.getAnswerText().substring(5,13);
                 try{
@@ -197,7 +216,7 @@ public class TestownikTestController {
                     Image image = new Image(new FileInputStream(testBasePath + "\\" + imageAnswer));
                     ToggleButton btn = new ToggleButton();
                     btn.setAlignment(Pos.CENTER);
-                    btn.setPrefWidth(720);
+                    btn.setPrefWidth(715);
                     btn.setGraphic(new ImageView(image));
                     btn.setId(Boolean.toString(q.isCorrect()));
                     answersButtons.add(btn);
@@ -206,72 +225,18 @@ public class TestownikTestController {
                 }
             }
         }
-        answersList.setItems(answersButtons);
+        answersButtons = shuffle(answersButtons);
         return answersButtons;
     }
-}
 
-class TestQuestion{
-    private String question;
-    private ArrayList<TestAnswer> answers;
-    private int occurrenceCount, retryCountWhenErrorOccurred;
-    TestQuestion(String pQ, ArrayList<TestAnswer> pA, int pIC, int pRC){
-        question = pQ;
-        answers = pA;
-        occurrenceCount = pIC;
-        retryCountWhenErrorOccurred = pRC;
-    }
-
-    @Override
-    public String toString() {
-        String testQuestion = "TestQuestion{" +
-                "question='" + question + '\'' + "answers{";
-        for( TestAnswer a : answers){
-            testQuestion += " " + a.getAnswerText() + "--->" + a.isCorrect() + " -|||- ";
+    private ObservableList<ToggleButton> shuffle(ObservableList<ToggleButton> list){
+        Random rn = new Random();
+        ObservableList<ToggleButton> tmpList = FXCollections.observableArrayList();
+        while(list.size() > 0){
+            int randomIndex = rn.nextInt(list.size());
+            tmpList.add(list.get(randomIndex));
+            list.remove(list.get(randomIndex));
         }
-        testQuestion += "}";
-        return testQuestion;
-    }
-
-    String getQuestion(){
-        return question;
-    }
-
-    ArrayList<TestAnswer> getAnswers(){
-        return answers;
-    }
-
-    int getOccurrenceCount(){
-        return occurrenceCount;
-    }
-
-    int getRetryCount(){
-        return retryCountWhenErrorOccurred;
-    }
-
-    void badAnswer(){
-        occurrenceCount += retryCountWhenErrorOccurred;
-    }
-
-    void goodAnswer(){
-        occurrenceCount--;
-    }
-}
-
-class TestAnswer{
-    private String answerText;
-    private Boolean isCorrect;
-
-    TestAnswer(String pT, Boolean pIsCorrect){
-        answerText = pT;
-        isCorrect =  pIsCorrect;
-    }
-
-    String getAnswerText(){
-        return answerText;
-    }
-
-    Boolean isCorrect(){
-        return isCorrect;
+        return tmpList;
     }
 }

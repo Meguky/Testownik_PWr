@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="320.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="testownik.TestownikMenuController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="320.0" style="-fx-alignment: center;" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="testownik.TestownikMenuController">
    <children>
       <MenuBar>
         <menus>
@@ -42,14 +42,14 @@
                </font>
             </Label>
             <Label layoutX="276.0" prefHeight="17.0" prefWidth="44.0" text="Ver. 0.8" />
-            <Label layoutX="14.0" layoutY="92.0" prefHeight="40.0" prefWidth="244.0" text="Ilość początkowych wystąpień pytania">
+            <Label layoutX="14.0" layoutY="80.0" prefHeight="40.0" prefWidth="244.0" text="Ilość początkowych wystąpień pytania">
                <font>
                   <Font size="14.0" />
                </font>
             </Label>
-            <TextField fx:id="initialCount" layoutX="15.0" layoutY="132.0" promptText="1" text="1" />
-            <TextField fx:id="retryCount" layoutX="15.0" layoutY="206.0" promptText="1" text="1" />
-            <Label layoutX="14.0" layoutY="166.0" prefHeight="40.0" prefWidth="244.0" text="Ilość powtórzeń w razie błędu">
+            <TextField fx:id="initialCount" layoutX="15.0" layoutY="120.0" prefHeight="25.0" prefWidth="78.0" promptText="1" text="1" />
+            <TextField fx:id="retryCount" layoutX="15.0" layoutY="185.0" prefHeight="25.0" prefWidth="78.0" promptText="1" text="1" />
+            <Label layoutX="14.0" layoutY="145.0" prefHeight="40.0" prefWidth="244.0" text="Ilość powtórzeń w razie błędu">
                <font>
                   <Font size="14.0" />
                </font>

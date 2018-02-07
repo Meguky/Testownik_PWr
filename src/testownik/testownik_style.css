@@ -1,0 +1,13 @@
+.questionPane{
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.5, 2, 2);
+    -fx-background-color: white;
+}
+
+.infoPane{
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.5, 2, 2);
+    -fx-background-color: white;
+}
+
+.answersList{
+    -fx-grid-lines-visible: false;
+}

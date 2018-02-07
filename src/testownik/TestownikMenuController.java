@@ -8,6 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
@@ -37,23 +38,36 @@ public class TestownikMenuController {
     @FXML
     public void beginTest(){
         beginTest.setOnAction(event -> {
-            //Checking if innerRetryCount is Integer
+            boolean errorFlag = false;
+            //Checking if innerRetryCount is Integer (0-INT_MAX)
             try{
                 innerRetryCount = Integer.parseInt(retryCount.getText());
+                if(innerRetryCount < 0){
+                    new Dialog("Błąd", "Ilość początkowych wystąpnień pytania -> Liczba musi być równa lub większa niż zero.", Alert.AlertType.ERROR);
+                    errorFlag = true;
+                }
             }catch(NumberFormatException e){
-                new Dialog("Błąd","Wpisz liczbę w polu od ilości powtórzeń w razie błędu");
+                new Dialog("Błąd","Ilość początkowych wystąpnień pytania -> Wpisana wartość nie jest liczbą, lub jest za duża.", Alert.AlertType.ERROR);
+                errorFlag = true;
             }
-            //Checking if innerInitialCount is Integer
+            //Checking if innerInitialCount is Integer (1-INT_MAX)
             try{
                 innerInitialCount = Integer.parseInt(initialCount.getText());
+                if(innerInitialCount <= 0){
+                    new Dialog("Błąd", "Ilość powtórzeń w razie błędu -> Liczba musi być większa niż zero.", Alert.AlertType.ERROR);
+                    errorFlag = true;
+                }
             }catch(NumberFormatException e){
-                new Dialog("Błąd","Wpisz liczbę w polu od ilości początkowych wystąpień pytania");
+                new Dialog("Błąd","Ilość powtórzeń w razie błędu -> Wpisana wartość nie jest liczbą, lub jest za duża.", Alert.AlertType.ERROR);
+                errorFlag = true;
             }
             //Cheking if any questions database is selected
             innerBaseChoice += "\\" + baseChoice.getValue();
             if(baseChoice.getValue() == null){
-                new Dialog("Błąd","Nie wybrano żadnej bazy");
-            }else{
+                new Dialog("Błąd","Nie wybrano żadnej bazy pytań", Alert.AlertType.ERROR);
+                errorFlag = true;
+            }
+            if(!errorFlag) {
                 try(BufferedReader database = new BufferedReader(new FileReader(new File(innerBaseChoice + "\\" + "baza.txt")))){
                     try {
                         //Initializing new windows with test
@@ -70,9 +84,10 @@ public class TestownikMenuController {
                         e.printStackTrace();
                     }
                 }catch(IOException e){
-                    new Dialog("Error", "Folder nie zawiera bazy pytań.");
+                    e.printStackTrace();
                 }
             }
+            errorFlag = false;
         });
     }
 
@@ -86,7 +101,6 @@ public class TestownikMenuController {
                 String path = URLDecoder.decode(selectedDirectory.getAbsolutePath(),"UTF-8");
                 innerBaseChoice = path;
                 File directory = new File(path);
-                System.out.println(directory.getAbsolutePath());
                 //Scanning for sub folders
                 FileFilter directoryScanner = (file) -> file.isDirectory();
                 File[] directoryFileList = directory.listFiles(directoryScanner);
@@ -95,7 +109,7 @@ public class TestownikMenuController {
                     List<String> fileNames = new ArrayList<>(directoryFileList.length);
                     if(directoryFileList.length < 1){
                         //Checking if there are any sub folders
-                        new Dialog("Błąd","Nie znaleziono żadnych folderów z pytaniami.");
+                        new Dialog("Błąd","Nie znaleziono żadnych folderów z pytaniami.", Alert.AlertType.ERROR);
                     }
                     for(File file : directoryFileList){
                         fileNames.add(file.getName());
@@ -106,7 +120,7 @@ public class TestownikMenuController {
                 }catch(NullPointerException e){}
             }catch(UnsupportedEncodingException e){}
         }else{
-            new Dialog("Błąd","Nie wybrano żadnego folderu z pytaniami.");
+            new Dialog("Błąd","Nie wybrano żadnego folderu z pytaniami.", Alert.AlertType.ERROR);
         }
     }
 }

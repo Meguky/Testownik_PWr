@@ -67,6 +67,7 @@ public class TestownikTestController {
     public void checkAnswer(){
         int goodAnswersSelected = 0;
         int goodAnswers = 0;
+        Boolean answeredGood = true;
         nextQuestionButton.setDisable(false);
         checkAnswerButton.setDisable(true);
         //Marking good and bad answers and also checking if user chose good one
@@ -78,6 +79,7 @@ public class TestownikTestController {
                     goodAnswersSelected++;
                 }else{
                     b.setStyle("-fx-background-color: red; -fx-alignment: center; -fx-font-size: 18px");
+                    answeredGood = false;
                 }
             }else{
                 if(b.getId().equals("true")){
@@ -87,7 +89,7 @@ public class TestownikTestController {
             }
         }
         //If user answered correctly question occurrence is lowered, otherwise retryCount is added to occurrence count
-        if(goodAnswersSelected == goodAnswers){
+        if(goodAnswersSelected == goodAnswers && answeredGood){
             testQuestions.get(currentQuestion).goodAnswer();
         }else{
             testQuestions.get(currentQuestion).badAnswer();

@@ -43,7 +43,18 @@ public class TestownikMenuController {
 
     @FXML
     public void settingsHandle(){
-        //TODO Settings; theme chooser, default questions database folder etc.
+        try {
+            //Initializing new windows with test
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("testownikSettings.fxml"));
+            Parent root = loader.load();
+            Stage settingsStage = new Stage();
+            settingsStage.setTitle("Settings");
+            settingsStage.setScene(new Scene(root,360,150));
+            settingsStage.setResizable(false);
+            settingsStage.show();
+        }catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -103,6 +114,7 @@ public class TestownikMenuController {
                     Parent root = loader.load();
                     Stage testStage = new Stage();
                     testStage.setTitle("Test");
+                    testStage.setResizable(false);
                     testStage.setScene(new Scene(root,1280,720));
                     testStage.show();
                     //Passing parameters to test window
@@ -112,7 +124,7 @@ public class TestownikMenuController {
                     e.printStackTrace();
                 }
             }catch(IOException e){
-                e.printStackTrace();
+                new Dialog("Błąd", "Nie wykryto bazy pytań, dodaj plik baza.txt do folderu z pytaniami", Alert.AlertType.ERROR);
             }
         }
         errorFlag = false;
@@ -123,31 +135,41 @@ public class TestownikMenuController {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         File selectedDirectory = directoryChooser.showDialog(((Node)event.getTarget()).getScene().getWindow());
         if(selectedDirectory != null){
+            //Getting path to the questions database from selected directory.
             try{
-                //Getting path to the questions database from selected directory.
                 String path = URLDecoder.decode(selectedDirectory.getAbsolutePath(),"UTF-8");
                 innerBaseChoice = path;
-                File directory = new File(path);
-                //Scanning for sub folders
-                FileFilter directoryScanner = (file) -> file.isDirectory();
-                File[] directoryFileList = directory.listFiles(directoryScanner);
-                try{
-                    //Making and populating array with sub folders names
-                    List<String> fileNames = new ArrayList<>(directoryFileList.length);
-                    if(directoryFileList.length < 1){
-                        //Checking if there are any sub folders
-                        new Dialog("Błąd","Nie znaleziono żadnych folderów z pytaniami.", Alert.AlertType.ERROR);
-                    }
-                    for(File file : directoryFileList){
-                        fileNames.add(file.getName());
-                    }
-                    //Transitioning to Observable list for combo box
-                    ObservableList<String> options = FXCollections.observableArrayList(fileNames);
-                    baseChoice.setItems(options);
-                }catch(NullPointerException e){}
+                populateComboBox(path);
             }catch(UnsupportedEncodingException e){}
         }else{
             new Dialog("Błąd","Nie wybrano żadnego folderu z pytaniami.", Alert.AlertType.ERROR);
         }
+    }
+
+    void initData(String pPathToQuestionBase){
+        innerBaseChoice = pPathToQuestionBase;
+        System.out.println(pPathToQuestionBase);
+        populateComboBox(pPathToQuestionBase);
+    }
+
+    private void populateComboBox(String pathToDirectory){
+        File directory = new File(pathToDirectory);
+        //Scanning for sub folders
+        FileFilter directoryScanner = (file) -> file.isDirectory();
+        File[] directoryFileList = directory.listFiles(directoryScanner);
+        try{
+            //Making and populating array with sub folders names
+            List<String> fileNames = new ArrayList<>(directoryFileList.length);
+            if(directoryFileList.length < 1){
+                //Checking if there are any sub folders
+                new Dialog("Błąd","Nie znaleziono żadnych folderów z pytaniami.", Alert.AlertType.ERROR);
+            }
+            for(File file : directoryFileList){
+                fileNames.add(file.getName());
+            }
+            //Transitioning to Observable list for combo box
+            ObservableList<String> options = FXCollections.observableArrayList(fileNames);
+            baseChoice.setItems(options);
+        }catch(NullPointerException e){}
     }
 }

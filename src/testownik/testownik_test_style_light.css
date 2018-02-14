@@ -1,0 +1,56 @@
+.questionPane{
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.5, 2, 2);
+    -fx-background-color: white;
+}
+
+.infoPane{
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.5, 2, 2);
+    -fx-background-color: white;
+}
+
+.answersList{
+    -fx-grid-lines-visible: false;
+    -fx-background-color: white;
+}
+
+.button{
+    -fx-background-color: white;
+    -fx-border-width: 1px;
+    -fx-border-color: #e3e3e3;
+}
+
+.button:hover{
+    -fx-background-color: #ebebeb;
+    -fx-border-width: 1px;
+    -fx-border-color: #dfdfdf;
+}
+
+.button:pressed{
+    -fx-background-color: #e6faff;
+    -fx-border-width: 1px;
+    -fx-border-color: #c9c9c9;
+}
+
+.toggle-button{
+    -fx-background-color: white;
+    -fx-border-width: 1px;
+    -fx-border-color: #e3e3e3;
+}
+
+.toggle-button:hover{
+    -fx-background-color: #ebebeb;
+    -fx-border-width: 1px;
+    -fx-border-color: #dfdfdf;
+}
+
+.toggle-button:pressed{
+    -fx-background-color: #e6faff;
+    -fx-border-width: 1px;
+    -fx-border-color: #c9c9c9;
+}
+
+.toggle-button:selected{
+    -fx-background-color: #c1d2d7;
+    -fx-border-width: 1px;
+    -fx-border-color: #c9c9c9;
+}
